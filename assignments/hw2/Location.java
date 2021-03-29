@@ -46,6 +46,11 @@ public class Location
     /** Overrides hashcode method **/
     @Override
     public int hashCode() {
-        return Objects.hash(xCoord, yCoord);
+        int result = 31;
+
+        result = 19 * result + Objects.hash(xCoord);
+        result = 19 * result + Objects.hash(yCoord);
+
+        return result;
     }
 }

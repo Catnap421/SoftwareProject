@@ -49,17 +49,11 @@ public class AStarState
         Collections.sort(entries, new Comparator<Map.Entry<Location, Waypoint>>() {
             @Override
             public int compare(Map.Entry<Location, Waypoint> o1, Map.Entry<Location, Waypoint> o2) {
-                return o1.getValue().getTotalCost() - o2.getValue().getTotalCost() < 0 ? -1 : 1;
+                return Float.compare(o1.getValue().getTotalCost(), o2.getValue().getTotalCost());
             }
         });
 
-        for(Map.Entry<Location, Waypoint> entry : entries) {
-            System.out.println(entry.getKey() + " : " + entry.getValue());
-
-        }
-
         return entries.get(0).getValue();
-
     }
 
     /**
