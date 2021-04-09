@@ -45,12 +45,10 @@ public class FractalExplorer {
         resetButton.addActionListener(new ActionListener(){
             @Override
             public void actionPerformed(ActionEvent e) {
-                fGen = new Mandelbrot();
                 fGen.getInitialRange(range);
                 drawFractal();
             }
         });
-
 
         /** Put all of the components into the Frame. **/
         frame.setLayout(new BorderLayout());
@@ -92,7 +90,6 @@ public class FractalExplorer {
     private class ActionHandler implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e){
-            fGen = new Mandelbrot();
             fGen.getInitialRange(range);
             drawFractal();
         }
