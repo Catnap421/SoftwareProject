@@ -53,6 +53,7 @@ public class AStarState
             }
         });
 
+
         return entries.get(0).getValue();
     }
 
