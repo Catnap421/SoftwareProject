@@ -1,4 +1,4 @@
-package hw4.fractals;
+package fractals;
 
 import java.awt.geom.Rectangle2D;
 
