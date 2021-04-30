@@ -1,28 +1,29 @@
-package hw3;
+package hw4.fractals.generator;
+
+import hw4.fractals.FractalGenerator;
 
 import java.awt.geom.Rectangle2D;
 
-public class Mandelbrot extends FractalGenerator {
+public class Tricorn extends FractalGenerator {
     /** 
-     * Maximum number of iterations before declaring a point
-     * in the fractals.generator.Mandelbrot set.
+     * Maximum number of iterations before declaring a point in the fractals.generator.Tricorn set.
      **/
     public static final int MAX_ITERATIONS = 2000;
     
     /** Specify an interesting region of the complex plane for the fractal. **/
     public void getInitialRange(Rectangle2D.Double range) {
         range.x = -2;
-        range.y = -1.5;
-        range.width = 3;
-        range.height = 3;
+        range.y = -2;
+        range.width = 4;
+        range.height = 4;
     }
     
     /**
-     *  This function computes the number of iterations needed
+     * This function computes the number of iterations needed
      * for c = a + bi to escape (ie, have magnitude 2 or greater).
      * If the point does not escape within MAX_ITERATIONS, -1 is returned
-     * to indicate as such. For the fractals.generator.Mandelbrot set, the iterating function is
-     * z_n = (z_{n-1})^2 + c.
+     * to indicate as such.
+     * For the fractals.generator.Tricorn set, the function is z_n = conjugate(z_{n-1})^2 + c.
      **/
     public int numIterations(double a, double b) {
         /** The square of the magnitude of c. **/
@@ -41,7 +42,7 @@ public class Mandelbrot extends FractalGenerator {
         while (i < MAX_ITERATIONS) {
             i += 1;
             nextRe = a + re * re - im * im;
-            nextIm = b + 2 * re * im;
+            nextIm = b + -2 * re * im;
             re = nextRe;
             im = nextIm;
             magSq = re * re + im * im;
@@ -49,5 +50,9 @@ public class Mandelbrot extends FractalGenerator {
                 return i;
         }
         return -1;
+    }
+    
+    public String toString() {
+        return "fractals.generator.Tricorn";
     }
 }

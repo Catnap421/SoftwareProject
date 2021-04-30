@@ -1,11 +1,12 @@
-package hw3;
+package hw4.fractals.generator;
+
+import hw4.fractals.FractalGenerator;
 
 import java.awt.geom.Rectangle2D;
 
 public class Mandelbrot extends FractalGenerator {
     /** 
-     * Maximum number of iterations before declaring a point
-     * in the fractals.generator.Mandelbrot set.
+     * Maximum number of iterations before declaring a point in the fractals.generator.Mandelbrot set.
      **/
     public static final int MAX_ITERATIONS = 2000;
     
@@ -18,11 +19,11 @@ public class Mandelbrot extends FractalGenerator {
     }
     
     /**
-     *  This function computes the number of iterations needed
+     * This function computes the number of iterations needed
      * for c = a + bi to escape (ie, have magnitude 2 or greater).
      * If the point does not escape within MAX_ITERATIONS, -1 is returned
-     * to indicate as such. For the fractals.generator.Mandelbrot set, the iterating function is
-     * z_n = (z_{n-1})^2 + c.
+     * to indicate as such.
+     * For the fractals.generator.Mandelbrot set, the function is z_n = (z_{n-1})^2 + c.
      **/
     public int numIterations(double a, double b) {
         /** The square of the magnitude of c. **/
@@ -49,5 +50,9 @@ public class Mandelbrot extends FractalGenerator {
                 return i;
         }
         return -1;
+    }
+    
+    public String toString() {
+        return "fractals.generator.Mandelbrot";
     }
 }
