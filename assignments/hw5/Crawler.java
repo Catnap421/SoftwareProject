@@ -9,10 +9,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
-import java.net.URL;
 import java.security.SecureRandom;
 import java.security.cert.X509Certificate;
-import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -78,10 +76,10 @@ public class Crawler {
                     new InputStreamReader(conn.getInputStream())
             );
 
-            for (String line; (line = in.readLine()) != null; ){
+            for (String line; (line = in.readLine()) != null; ) {
                 int fromIdx = 0;
                 int startLinkIdx = line.indexOf("<a href=\"http", fromIdx);
-                if(startLinkIdx < 0) continue;;
+                if (startLinkIdx < 0) continue;
 
                 int startIdx = line.indexOf("\"", startLinkIdx);
                 int lastIdx = line.indexOf("\"", startIdx + 1);
@@ -96,9 +94,13 @@ public class Crawler {
 
 //                System.out.println(line + "\t" + newUrl+ "\n");
 
-                if(!visitedUrls.contains(newUrl)) {
-                    visitedUrls.add(newUrl);
-                    urlDepthPairList.add(new UrlDepthPair(newUrl, depth + 1));
+                try {
+                    if (!visitedUrls.contains(newUrl)) {
+                        urlDepthPairList.add(new UrlDepthPair(newUrl, depth + 1));
+                        visitedUrls.add(newUrl);
+                    }
+                } catch(MalformedURLException e){
+                    continue;
                 }
             }
 
