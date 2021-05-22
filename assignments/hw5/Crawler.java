@@ -26,7 +26,14 @@ public class Crawler {
 
         setupSslContext();
 
-        int maxDepth = Integer.parseInt(args[1]);
+        int maxDepth = 0;
+
+        try {
+            maxDepth = Integer.parseInt(args[1]);
+        } catch (NumberFormatException e){
+            System.out.println("<depth> must be Integer");
+            System.exit(0);
+        }
 
         List<UrlDepthPair> urlDepthPairList = new LinkedList<>();
         List<UrlDepthPair> printUrlDepthPairList = new ArrayList<>();
@@ -48,8 +55,10 @@ public class Crawler {
         System.out.println(printUrlDepthPairList.size());
     }
 
+    /*
+     * Set up SSL context for HTTPS support
+     */
     public static void setupSslContext(){
-        // Set up SSL context for HTTPS support
         try {
             TrustManager[] trustAllCerts =
                     new TrustManager[]{ new X509TrustManager() {
@@ -62,6 +71,7 @@ public class Crawler {
             HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
         } catch (Exception e) { System.exit(1); }
     }
+
 
     public static void addUrl(List<UrlDepthPair> urlDepthPairList, UrlDepthPair urlDepthPair, int depth, int maxDepth, HashSet<String> visitedUrls){
         if(depth + 1 > maxDepth)
@@ -77,30 +87,26 @@ public class Crawler {
             );
 
             for (String line; (line = in.readLine()) != null; ) {
-                int fromIdx = 0;
-                int startLinkIdx = line.indexOf("<a href=\"http", fromIdx);
-                if (startLinkIdx < 0) continue;
+                int aTagIdx = line.indexOf("<a href=\"http");
 
-                int startIdx = line.indexOf("\"", startLinkIdx);
-                int lastIdx = line.indexOf("\"", startIdx + 1);
+                while(aTagIdx > 0) {
+                    int startIdx = line.indexOf("\"", aTagIdx);
+                    int lastIdx = line.indexOf("\"", startIdx + 1);
 
-                String newUrl;
+                    try {
+                        String newUrl = line.substring(startIdx + 1, lastIdx);
 
-                try {
-                    newUrl = line.substring(startIdx + 1, lastIdx);
-                } catch (StringIndexOutOfBoundsException e) {
-                    continue;
-                }
+                        if (!visitedUrls.contains(newUrl)) {
+                            urlDepthPairList.add(new UrlDepthPair(newUrl, depth + 1));
+                            visitedUrls.add(newUrl);
+                        }
 
-//                System.out.println(line + "\t" + newUrl+ "\n");
-
-                try {
-                    if (!visitedUrls.contains(newUrl)) {
-                        urlDepthPairList.add(new UrlDepthPair(newUrl, depth + 1));
-                        visitedUrls.add(newUrl);
+                        aTagIdx = line.indexOf("<a href=\"http", lastIdx + 1);
+                    } catch (StringIndexOutOfBoundsException | MalformedURLException e) {
+                        System.out.println("Error Occurred Line: " + line.trim());
+                        e.printStackTrace();
+                        break;
                     }
-                } catch(MalformedURLException e){
-                    continue;
                 }
             }
 
