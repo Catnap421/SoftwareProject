@@ -42,17 +42,17 @@ public class Crawler {
         urlDepthPairList.add(new UrlDepthPair(args[0], 0));
         visitedUrls.add(args[0]);
 
-        while(urlDepthPairList.size() > 0){
+        while(!urlDepthPairList.isEmpty()){
             UrlDepthPair urlDepthPair = urlDepthPairList.remove(0);
             printUrlDepthPairList.add(urlDepthPair);
 
-            addUrl(urlDepthPairList, urlDepthPair, urlDepthPair.depth , maxDepth, visitedUrls);
+            connectUrl(urlDepthPairList, urlDepthPair, urlDepthPair.depth , maxDepth, visitedUrls);
         }
 
         for(UrlDepthPair urlDepthPair: printUrlDepthPairList)
-            System.out.println(urlDepthPair.getURLString() + " " + urlDepthPair.getDepth());
+            System.out.println(urlDepthPair.getURLString() + "\t" + urlDepthPair.getDepth());
 
-        System.out.println(printUrlDepthPairList.size());
+        System.out.println("Total Number of Urls: " + printUrlDepthPairList.size());
     }
 
     /*
@@ -72,8 +72,7 @@ public class Crawler {
         } catch (Exception e) { System.exit(1); }
     }
 
-
-    public static void addUrl(List<UrlDepthPair> urlDepthPairList, UrlDepthPair urlDepthPair, int depth, int maxDepth, HashSet<String> visitedUrls){
+    public static void connectUrl(List<UrlDepthPair> urlDepthPairList, UrlDepthPair urlDepthPair, int depth, int maxDepth, HashSet<String> visitedUrls){
         if(depth + 1 > maxDepth)
             return;
 
@@ -87,33 +86,38 @@ public class Crawler {
             );
 
             for (String line; (line = in.readLine()) != null; ) {
-                int aTagIdx = line.indexOf("<a href=\"http");
-
-                while(aTagIdx > 0) {
-                    int startIdx = line.indexOf("\"", aTagIdx);
-                    int lastIdx = line.indexOf("\"", startIdx + 1);
-
-                    try {
-                        String newUrl = line.substring(startIdx + 1, lastIdx);
-
-                        if (!visitedUrls.contains(newUrl)) {
-                            urlDepthPairList.add(new UrlDepthPair(newUrl, depth + 1));
-                            visitedUrls.add(newUrl);
-                        }
-
-                        aTagIdx = line.indexOf("<a href=\"http", lastIdx + 1);
-                    } catch (StringIndexOutOfBoundsException | MalformedURLException e) {
-                        System.out.println("Error Occurred Line: " + line.trim());
-                        e.printStackTrace();
-                        break;
-                    }
-                }
+                parseUrl(line, urlDepthPairList, depth, visitedUrls);
             }
 
             in.close();
 
         } catch (IOException e) {
             e.printStackTrace();
+        }
+    }
+
+    public static void parseUrl(String line, List<UrlDepthPair> urlDepthPairList, int depth, HashSet<String> visitedUrls){
+        int aTagIdx = line.indexOf("<a href=\"http");
+
+        while(aTagIdx > 0) {
+            int startDoubleQuotationIdx = line.indexOf("\"", aTagIdx);
+            int nextDoubleQuotationIdx = line.indexOf("\"", startDoubleQuotationIdx + 1);
+
+            try {
+                String newUrl = line.substring(startDoubleQuotationIdx + 1, nextDoubleQuotationIdx);
+
+                if (!visitedUrls.contains(newUrl)) {
+                    urlDepthPairList.add(new UrlDepthPair(newUrl, depth + 1));
+                    visitedUrls.add(newUrl);
+                }
+
+                aTagIdx = line.indexOf("<a href=\"http", nextDoubleQuotationIdx + 1);
+
+            } catch (StringIndexOutOfBoundsException | MalformedURLException e) {
+                System.out.println("Error Occurred Line: " + line.trim());
+                e.printStackTrace();
+                break;
+            }
         }
     }
 }
