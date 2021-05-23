@@ -19,12 +19,35 @@ import java.util.List;
 public class Crawler {
 
     public static void main(String args[]) throws MalformedURLException {
+        int maxDepth = checkArgs(args);
+
+        setupSslContext();
+
+        List<UrlDepthPair> urlDepthPairList = new LinkedList<>();
+        List<UrlDepthPair> resultUrlDepthPairList = new ArrayList<>();
+        HashSet<String> visitedUrls = new HashSet<>();
+
+        urlDepthPairList.add(new UrlDepthPair(args[0], 0));
+        visitedUrls.add(args[0]);
+
+        while(!urlDepthPairList.isEmpty()){
+            UrlDepthPair urlDepthPair = urlDepthPairList.remove(0);
+            resultUrlDepthPairList.add(urlDepthPair);
+
+            connectUrl(urlDepthPairList, urlDepthPair, urlDepthPair.depth , maxDepth, visitedUrls);
+        }
+
+        for(UrlDepthPair urlDepthPair: resultUrlDepthPairList)
+            System.out.println(urlDepthPair.getURLString() + "\t" + urlDepthPair.getDepth());
+
+        System.out.println("Total Number of Urls: " + resultUrlDepthPairList.size());
+    }
+
+    public static int checkArgs(String args[]){
         if(args.length != 2){
             System.out.println("java Crawler <URL> <depth>");
             System.exit(0);
         }
-
-        setupSslContext();
 
         int maxDepth = 0;
 
@@ -35,24 +58,7 @@ public class Crawler {
             System.exit(0);
         }
 
-        List<UrlDepthPair> urlDepthPairList = new LinkedList<>();
-        List<UrlDepthPair> printUrlDepthPairList = new ArrayList<>();
-        HashSet<String> visitedUrls = new HashSet<>();
-
-        urlDepthPairList.add(new UrlDepthPair(args[0], 0));
-        visitedUrls.add(args[0]);
-
-        while(!urlDepthPairList.isEmpty()){
-            UrlDepthPair urlDepthPair = urlDepthPairList.remove(0);
-            printUrlDepthPairList.add(urlDepthPair);
-
-            connectUrl(urlDepthPairList, urlDepthPair, urlDepthPair.depth , maxDepth, visitedUrls);
-        }
-
-        for(UrlDepthPair urlDepthPair: printUrlDepthPairList)
-            System.out.println(urlDepthPair.getURLString() + "\t" + urlDepthPair.getDepth());
-
-        System.out.println("Total Number of Urls: " + printUrlDepthPairList.size());
+        return maxDepth;
     }
 
     /*
