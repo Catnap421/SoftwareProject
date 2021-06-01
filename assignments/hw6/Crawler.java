@@ -1,4 +1,4 @@
-package hw5;
+package hw6;
 
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;

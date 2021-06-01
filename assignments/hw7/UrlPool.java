@@ -1,3 +1,5 @@
+package hw7;
+
 import java.util.*;
 import java.util.concurrent.*;
 

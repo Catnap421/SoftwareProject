@@ -1,3 +1,5 @@
+package hw7;
+
 import java.net.MalformedURLException;
 import java.net.URL;
 
