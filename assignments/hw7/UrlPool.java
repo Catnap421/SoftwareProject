@@ -3,6 +3,8 @@ package hw7;
 import java.util.*;
 import java.util.concurrent.*;
 
+import static java.util.Collections.synchronizedSet;
+
 public class UrlPool {
     // List of pending urls to be crawled
     BlockingQueue<UrlDepthPair> pending_urls;
@@ -12,13 +14,16 @@ public class UrlPool {
     int maxDepth;
     // Count of waiting threads
     int waits;
-    
+    // Thread-safe Set of visited urls
+    Set<String> visited_urls;
+
     // Constructor
     public UrlPool(int maxDepth) {
         this.maxDepth = maxDepth;
         pending_urls = new LinkedBlockingQueue<>();
         seen_urls = new LinkedList<>();
         waits = 0;
+        visited_urls = Collections.synchronizedSet(new HashSet<>());
     }
     
     // Get the next UrlDepthPair to crawl
@@ -37,9 +42,15 @@ public class UrlPool {
     // Add a new pair to the pool if the depth is
     // less than the maximum depth to be considered.
     public void addPair(UrlDepthPair pair) {
+        if(visited_urls.contains(pair.getURLString()))
+            return;
+
+        visited_urls.add(pair.getURLString());
         seen_urls.add(pair);
+
         if (pair.getDepth() < maxDepth)
-            try { pending_urls.put(pair); } catch (InterruptedException e) {}
+            try { pending_urls.put(pair); } catch (InterruptedException e) { }
+
     }
     
     // Get the number of waiting threads
