@@ -21,21 +21,21 @@ public class UrlPool {
     public UrlPool(int maxDepth) {
         this.maxDepth = maxDepth;
         pending_urls = new LinkedBlockingQueue<>();
-        seen_urls = new LinkedList<>();
+        seen_urls = Collections.synchronizedList(new LinkedList<>());
         waits = new AtomicInteger(0);
         visited_urls = Collections.synchronizedSet(new HashSet<>());
     }
     
     // Get the next UrlDepthPair to crawl
     public UrlDepthPair getNextPair() {
-        waits.set(getWaitCount()+ 1);
+        setWaitCount(1);
         UrlDepthPair pair;
         try {
             pair = pending_urls.take();
         } catch (InterruptedException e) {
             pair = null;
         }
-        waits.set(getWaitCount() - 1);
+        setWaitCount(-1);
 
         return pair;
     }
@@ -43,7 +43,7 @@ public class UrlPool {
     // Add a new pair to the pool if the depth is
     // less than the maximum depth to be considered.
     public void addPair(UrlDepthPair pair) {
-        if(visited_urls.contains(pair.getURLString()))
+        if (visited_urls.contains(pair.getURLString()))
             return;
 
         visited_urls.add(pair.getURLString());
@@ -51,7 +51,6 @@ public class UrlPool {
 
         if (pair.getDepth() < maxDepth)
             try { pending_urls.put(pair); } catch (InterruptedException e) { }
-
     }
     
     // Get the number of waiting threads
@@ -62,5 +61,9 @@ public class UrlPool {
     // Get all the urls seen
     public List<UrlDepthPair> getSeenUrls() {
         return seen_urls;
+    }
+
+    public synchronized void setWaitCount(int num) {
+        waits.set(getWaitCount() + num);
     }
 }
