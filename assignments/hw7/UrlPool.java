@@ -2,8 +2,8 @@ package hw7;
 
 import java.util.*;
 import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
-import static java.util.Collections.synchronizedSet;
 
 public class UrlPool {
     // List of pending urls to be crawled
@@ -13,7 +13,7 @@ public class UrlPool {
     // Maximum crawl depth
     int maxDepth;
     // Count of waiting threads
-    int waits;
+    AtomicInteger waits;
     // Thread-safe Set of visited urls
     Set<String> visited_urls;
 
@@ -22,20 +22,21 @@ public class UrlPool {
         this.maxDepth = maxDepth;
         pending_urls = new LinkedBlockingQueue<>();
         seen_urls = new LinkedList<>();
-        waits = 0;
+        waits = new AtomicInteger(0);
         visited_urls = Collections.synchronizedSet(new HashSet<>());
     }
     
     // Get the next UrlDepthPair to crawl
     public UrlDepthPair getNextPair() {
-        waits++;
+        waits.set(getWaitCount()+ 1);
         UrlDepthPair pair;
         try {
-            pair = pending_urls.take(); 
-        } catch (InterruptedException e) { 
+            pair = pending_urls.take();
+        } catch (InterruptedException e) {
             pair = null;
         }
-        waits--;
+        waits.set(getWaitCount() - 1);
+
         return pair;
     }
 
@@ -55,7 +56,7 @@ public class UrlPool {
     
     // Get the number of waiting threads
     public synchronized int getWaitCount() {
-        return waits;
+        return waits.get();
     }
     
     // Get all the urls seen
