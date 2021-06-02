@@ -2,8 +2,6 @@ package hw7;
 
 import java.util.*;
 import java.util.concurrent.*;
-import java.util.concurrent.atomic.AtomicInteger;
-
 
 public class UrlPool {
     // List of pending urls to be crawled
@@ -13,8 +11,8 @@ public class UrlPool {
     // Maximum crawl depth
     int maxDepth;
     // Count of waiting threads
-    AtomicInteger waits;
-    // Thread-safe Set of visited urls
+    int waits;
+    //Set of visited urls
     Set<String> visited_urls;
 
     // Constructor
@@ -22,20 +20,20 @@ public class UrlPool {
         this.maxDepth = maxDepth;
         pending_urls = new LinkedBlockingQueue<>();
         seen_urls = Collections.synchronizedList(new LinkedList<>());
-        waits = new AtomicInteger(0);
-        visited_urls = Collections.synchronizedSet(new HashSet<>());
+        waits = 0;
+        visited_urls = new HashSet<>();
     }
-    
+
     // Get the next UrlDepthPair to crawl
     public UrlDepthPair getNextPair() {
-        setWaitCount(1);
+        addWaitCount(1);
         UrlDepthPair pair;
         try {
             pair = pending_urls.take();
         } catch (InterruptedException e) {
             pair = null;
         }
-        setWaitCount(-1);
+        addWaitCount(-1);
 
         return pair;
     }
@@ -43,10 +41,9 @@ public class UrlPool {
     // Add a new pair to the pool if the depth is
     // less than the maximum depth to be considered.
     public void addPair(UrlDepthPair pair) {
-        if (visited_urls.contains(pair.getURLString()))
+        if(checkVisited(pair))
             return;
 
-        visited_urls.add(pair.getURLString());
         seen_urls.add(pair);
 
         if (pair.getDepth() < maxDepth)
@@ -55,7 +52,7 @@ public class UrlPool {
     
     // Get the number of waiting threads
     public synchronized int getWaitCount() {
-        return waits.get();
+        return waits;
     }
     
     // Get all the urls seen
@@ -63,7 +60,18 @@ public class UrlPool {
         return seen_urls;
     }
 
-    public synchronized void setWaitCount(int num) {
-        waits.set(getWaitCount() + num);
+    // Add number to the wait count
+    public synchronized void addWaitCount(int num) {
+        waits += num;
     }
+
+    // Check the url is visited and if not, add url to the set of visited urls
+    public synchronized boolean checkVisited(UrlDepthPair pair){
+        if (visited_urls.contains(pair.getURLString()))
+            return true;
+
+        visited_urls.add(pair.getURLString());
+        return false;
+    }
+
 }
