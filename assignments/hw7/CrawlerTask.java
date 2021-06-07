@@ -33,7 +33,7 @@ public class CrawlerTask implements Runnable {
             String newURL = line.substring(hIdx, eIdx);
             try {
                 pool.addPair(new UrlDepthPair(newURL, depth + 1));
-                if (verbose) System.out.println("!!! " + newURL);
+//                if (verbose) System.out.println("!!! " + newURL);
             } catch (MalformedURLException e) {}
             // Check the remaining part of the line
             cIdx = eIdx;
@@ -46,18 +46,22 @@ public class CrawlerTask implements Runnable {
         int depth = pair.getDepth();
         try {
             HttpURLConnection conn = (HttpURLConnection)(new URL(urlStr).openConnection());
-            if (verbose) System.out.println(">>> " + urlStr);
+//            if (verbose) System.out.println(">>> " + urlStr);
             conn.setConnectTimeout(1000);
             conn.setReadTimeout(3000);
             BufferedReader in = new BufferedReader(
                 new InputStreamReader(conn.getInputStream(), Charset.forName("cp949")));
             // Extract links from the pages
-            for (String line; (line = in.readLine()) != null; )
+
+            for (String line; (line = in.readLine()) != null; ) {
                 parseLine(line, depth);
+            }
             // Close resources and disconnect
             in.close();
             conn.disconnect();
+
         } catch (IOException e) { /* e.printStackTrace(); */ }
+
     }
 
     public void run() {

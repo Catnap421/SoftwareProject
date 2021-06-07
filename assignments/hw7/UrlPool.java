@@ -12,7 +12,7 @@ public class UrlPool {
     int maxDepth;
     // Count of waiting threads
     int waits;
-    //Set of visited urls
+    // Set of visited urls
     Set<String> visited_urls;
 
     // Constructor
@@ -21,7 +21,7 @@ public class UrlPool {
         pending_urls = new LinkedBlockingQueue<>();
         seen_urls = Collections.synchronizedList(new LinkedList<>());
         waits = 0;
-        visited_urls = new HashSet<>();
+        visited_urls = Collections.synchronizedSet(new HashSet<>());
     }
 
     // Get the next UrlDepthPair to crawl
@@ -41,7 +41,7 @@ public class UrlPool {
     // Add a new pair to the pool if the depth is
     // less than the maximum depth to be considered.
     public void addPair(UrlDepthPair pair) {
-        if(checkVisited(pair))
+        if(!visited_urls.add(pair.getURLString()))
             return;
 
         seen_urls.add(pair);
@@ -61,17 +61,8 @@ public class UrlPool {
     }
 
     // Add number to the wait count
-    public synchronized void addWaitCount(int num) {
+    private synchronized void addWaitCount(int num) {
         waits += num;
-    }
-
-    // Check the url is visited and if not, add url to the set of visited urls
-    public synchronized boolean checkVisited(UrlDepthPair pair){
-        if (visited_urls.contains(pair.getURLString()))
-            return true;
-
-        visited_urls.add(pair.getURLString());
-        return false;
     }
 
 }

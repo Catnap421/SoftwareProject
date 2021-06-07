@@ -43,10 +43,10 @@ public class Crawler {
     }
 
     public static void main(String[] args) throws MalformedURLException {
-        if (args.length != 3) {
-            System.out.println("usage: java Crawler <URL> <max_depth> <num_threads>");
-            return;
-        }
+//        if (args.length != 3) {
+//            System.out.println("usage: java Crawler <URL> <max_depth> <num_threads>");
+//            return;
+//        }
         // Parse command-line parameters
         String startURL = args[0];
         int maxDepth = Integer.parseInt(args[1]);
